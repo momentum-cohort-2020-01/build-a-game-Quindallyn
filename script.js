@@ -12,8 +12,11 @@ class Game {
     const canvas = document.querySelector('#run')
     const screen = canvas.getContext('2d')
     const gameSize = { x: canvas.width, y: canvas.height }
-    this.player = new Player(this, gameSize)
-    console.log(this.player)
+    this.bodies = []
+    this.bodies = this.bodies.concat(createEnemy(this))
+    this.bodies = this.bodies.concat(new Player(this, gameSize))
+    // this.player = new Player(this, gameSize)
+    // this.enemy = new Enemy(this, center)
 
     const tick = () => {
       this.update()
@@ -24,13 +27,20 @@ class Game {
   }
 
   update () {
-    this.player.update()
-    console.log('update')
+    for (let i = 0; i < this.bodies.length; i++) {
+      this.bodies[i].update()
+    }
   }
 
   draw (screen, gameSize) {
     screen.clearRect(0, 0, gameSize.x, gameSize.y)
-    drawRect(screen, this.player)
+    for (let i = 0; i < this.bodies.length; i++) {
+      drawRect(screen, this.bodies[i])
+    }
+  }
+
+  addBody (body) {
+    this.bodies.push(body)
   }
 }
 
@@ -58,6 +68,32 @@ class Player {
     }
     console.log('keyboarder')
   }
+}
+
+class Enemy {
+  constructor (game, center) {
+    this.game = game
+    this.center = center
+    this.size = { x: 20, y: 20 }
+    this.patrolX = 0
+    this.speedX = 0.1
+  }
+
+  update () {
+    if (this.patrolX < 0 || this.patrolX > 30) {
+      this.speedX = -this.speedX
+    }
+  }
+}
+
+function createEnemy (game) {
+  const enemy = []
+  for (let i = 0; i < 10; i++) {
+    const x = Math.random() * 280
+    const y = Math.random() * 280
+    enemy.push(new Enemy(game, { x: x, y: y }))
+  }
+  return enemy
 }
 
 function drawRect (screen, body) {
